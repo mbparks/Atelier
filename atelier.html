@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<!--
+  ATELIER  v0.5.0
+  Field Instrument No. 035
+  A preparatory bench for the painter. See, Build, Color, Check.
+
+  Phase 1 foundation, Phase 2 See and Build core, Phase 3 reductions and
+  construction, Phase 4 the Color family, Phase 5 the Check family. Everything
+  reads from one shared document so each family enriches the others.
+
+  License: GPL-3.0
+  This program is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or any later version. This program
+  is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY,
+  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE. See the GNU General Public License for more details.
+
+  Conventions: single file, no build step, no server dependencies. No em dashes.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATELIER, Field Instrument 035</title>
+<style>
+  :root {
+    --ground:   #15120e;
+    --plate:    #1d1812;
+    --plate2:   #241d15;
+    --hair:     #3a2f22;
+    --hair2:    #4d3f2c;
+    --brass:    #c79a4e;
+    --brass-dim:#8a6e3a;
+    --copper:   #b06a3a;
+    --parchment:#e7dcc2;
+    --ink:      #cdbf9f;
+    --muted:    #93856a;
+    --focal:    #5fb0a6;
+    --font-display: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --font-body: ui-serif, Georgia, "Iowan Old Style", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: radial-gradient(120% 80% at 50% -10%, #1c1813 0%, var(--ground) 60%) fixed;
+    color: var(--ink); font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  header.bench {
+    display: flex; align-items: baseline; gap: 18px;
+    padding: 14px 22px 12px; border-bottom: 1px solid var(--hair);
+    background: linear-gradient(180deg, var(--plate2), var(--plate)); flex: 0 0 auto;
+  }
+  .wordmark {
+    font-family: var(--font-display); font-size: 26px; letter-spacing: 0.42em;
+    text-transform: uppercase; color: var(--parchment); text-shadow: 0 1px 0 #000; padding-right: 4px;
+  }
+  .wordmark::first-letter { color: var(--brass); }
+  .designation { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); line-height: 1.5; }
+  .designation b { color: var(--brass-dim); font-weight: 600; }
+  .header-spacer { flex: 1; }
+  .header-note { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; cursor: pointer; }
+  .header-note:hover { color: var(--brass); }
+
+  .frame { flex: 1 1 auto; display: grid; grid-template-columns: 290px 1fr; min-height: 0; }
+
+  aside.panel { border-right: 1px solid var(--hair); background: linear-gradient(180deg, var(--plate), #181410); display: flex; flex-direction: column; min-height: 0; }
+  .tabs { display: flex; border-bottom: 1px solid var(--hair); flex: 0 0 auto; }
+  .tab {
+    flex: 1; appearance: none; background: transparent; border: none; border-right: 1px solid var(--hair);
+    color: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; padding: 12px 4px 11px; cursor: pointer; position: relative; transition: color 120ms, background 120ms;
+  }
+  .tab:last-child { border-right: none; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--brass); background: rgba(199,154,78,0.06); }
+  .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--brass); }
+
+  .panel-scroll { overflow-y: auto; padding: 16px 16px 28px; flex: 1 1 auto; }
+  .panel-scroll::-webkit-scrollbar { width: 9px; }
+  .panel-scroll::-webkit-scrollbar-thumb { background: var(--hair2); }
+
+  .group { margin-bottom: 22px; }
+  .group > .legend {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--brass-dim); border-bottom: 1px solid var(--hair); padding-bottom: 6px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .legend .idx { color: var(--muted); font-size: 9px; }
+  .row { display: flex; align-items: center; justify-content: space-between; margin: 9px 0; gap: 10px; }
+  .row label.name { font-size: 13px; color: var(--ink); }
+  .row .sub { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+
+  .toggle { appearance: none; width: 40px; height: 20px; background: #2a2218; border: 1px solid var(--hair2); border-radius: 11px; position: relative; cursor: pointer; flex: 0 0 auto; transition: background 140ms, border-color 140ms; }
+  .toggle::after { content: ""; position: absolute; top: 1px; left: 1px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform 140ms, background 140ms; }
+  .toggle:checked { background: rgba(199,154,78,0.22); border-color: var(--brass-dim); }
+  .toggle:checked::after { transform: translateX(20px); background: var(--brass); }
+
+  .seg { display: flex; border: 1px solid var(--hair2); border-radius: 3px; overflow: hidden; }
+  .seg button { appearance: none; background: transparent; border: none; border-right: 1px solid var(--hair2); color: var(--muted); font-family: var(--font-mono); font-size: 12px; padding: 5px 0; min-width: 28px; cursor: pointer; transition: background 120ms, color 120ms; }
+  .seg button:last-child { border-right: none; }
+  .seg button:hover { color: var(--ink); }
+  .seg button.on { background: var(--brass); color: #1a140b; font-weight: 600; }
+  .seg-wide { width: 100%; }
+  .seg-wide button { flex: 1; }
+
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 130px; height: 2px; background: var(--hair2); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border-radius: 50%; background: var(--brass); border: 1px solid #1a140b; cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: var(--brass); border: 1px solid #1a140b; cursor: pointer; }
+  input[type=number], input[type=text] { background: #17120d; border: 1px solid var(--hair2); color: var(--ink); font-family: var(--font-mono); font-size: 12px; padding: 4px 6px; width: 64px; }
+
+  .btn { appearance: none; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); background: linear-gradient(180deg, var(--plate2), #1a1510); border: 1px solid var(--hair2); padding: 9px 12px; cursor: pointer; width: 100%; transition: border-color 120ms, color 120ms, background 120ms; }
+  .btn:hover { border-color: var(--brass-dim); color: var(--brass); }
+  .btn.primary { border-color: var(--brass-dim); color: var(--brass); }
+  .btn.primary:hover { background: rgba(199,154,78,0.1); }
+  .btn + .btn { margin-top: 8px; }
+  .btn-half { display: flex; gap: 8px; }
+  .btn-half .btn { margin-top: 0; }
+
+  .hint { font-family: var(--font-mono); font-size: 10px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
+  :focus-visible { outline: 2px solid var(--focal); outline-offset: 1px; }
+
+  .corner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 86px; }
+  .corner-grid button { appearance: none; border: 1px solid var(--hair2); background: transparent; color: var(--muted); font-family: var(--font-mono); font-size: 14px; padding: 4px 0; cursor: pointer; }
+  .corner-grid button.on { border-color: var(--brass); color: var(--brass); }
+
+  .subtabs { display: flex; gap: 0; border: 1px solid var(--hair2); margin-bottom: 14px; }
+  .subtabs button { flex: 1; appearance: none; background: transparent; border: none; border-right: 1px solid var(--hair2); color: var(--muted); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 7px 0; cursor: pointer; }
+  .subtabs button:last-child { border-right: none; }
+  .subtabs button.on { background: var(--brass); color: #1a140b; }
+
+  /* Stage */
+  main.stage-wrap { position: relative; display: flex; align-items: center; justify-content: center; padding: 22px; min-width: 0; min-height: 0;
+    background: repeating-linear-gradient(0deg, transparent 0 31px, rgba(255,255,255,0.012) 31px 32px), repeating-linear-gradient(90deg, transparent 0 31px, rgba(255,255,255,0.012) 31px 32px); }
+  .stagecol { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 100%; max-height: 100%; min-height: 0; }
+  .stage { position: relative; display: flex; background: var(--plate); border: 1px solid var(--hair2); box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(0,0,0,0.4); padding: 14px 14px 14px 0; max-width: 100%; min-height: 0; }
+  .ruler { width: 34px; flex: 0 0 auto; border-right: 1px solid var(--hair); margin-right: 14px; position: relative; font-family: var(--font-mono); }
+  .plate-area { position: relative; display: flex; align-items: center; justify-content: center; min-width: 120px; min-height: 120px; }
+  .plate-area .corner { position: absolute; width: 12px; height: 12px; border: 1px solid var(--brass-dim); pointer-events: none; }
+  .corner.tl { top: -7px; left: -7px; border-right: none; border-bottom: none; }
+  .corner.tr { top: -7px; right: -7px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: -7px; left: -7px; border-right: none; border-top: none; }
+  .corner.br { bottom: -7px; right: -7px; border-left: none; border-top: none; }
+  #cvBase, #cvArm { position: relative; display: block; max-width: 100%; max-height: 100%; }
+  #cvArm { position: absolute; inset: 0; pointer-events: none; }
+  .plate-area.crosshair { cursor: crosshair; }
+
+  .empty { font-family: var(--font-mono); color: var(--muted); text-align: center; padding: 40px 30px; font-size: 12px; letter-spacing: 0.06em; line-height: 1.8; max-width: 320px; }
+  .empty b { color: var(--brass-dim); }
+  .not-installed { margin: 8px 0; padding: 16px; border: 1px dashed var(--hair2); font-family: var(--font-mono); font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+  .keystrip { display: flex; gap: 0; border: 1px solid var(--hair); min-height: 26px; }
+  .keystrip .sw { flex: 1; min-width: 18px; position: relative; }
+  .keystrip .sw span { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-family: var(--font-mono); font-size: 7px; color: rgba(0,0,0,0.6); }
+  .keylabel { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brass-dim); margin: 12px 0 6px; }
+
+  .multiples { display: flex; gap: 12px; align-items: flex-start; }
+  .multiples figure { margin: 0; text-align: center; }
+  .multiples canvas { border: 1px solid var(--hair2); display: block; }
+  .multiples figcaption { font-family: var(--font-mono); font-size: 9px; color: var(--muted); margin-top: 4px; letter-spacing: 0.1em; }
+
+  /* Color workbench in the stage */
+  .colorstage { display: none; flex-direction: column; align-items: center; gap: 16px; }
+  .colorstage.show { display: flex; }
+  .stage.show-plate { display: flex; }
+  .wheelwrap { position: relative; }
+  #cvWheel { display: block; border-radius: 50%; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  #cvWheelOv { position: absolute; inset: 0; pointer-events: none; }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 420px; }
+  .chip { width: 52px; height: 52px; border: 1px solid var(--hair2); position: relative; }
+  .chip small { position: absolute; bottom: -15px; left: 0; right: 0; text-align: center; font-family: var(--font-mono); font-size: 8px; color: var(--muted); }
+  .chip.tall { margin-bottom: 16px; }
+
+  .pigment-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
+  .pig { display: flex; align-items: center; gap: 7px; padding: 4px; border: 1px solid transparent; cursor: pointer; }
+  .pig:hover { border-color: var(--hair2); }
+  .pig .dot { width: 18px; height: 18px; border: 1px solid rgba(0,0,0,0.4); flex: 0 0 auto; }
+  .pig .pn { font-size: 10px; line-height: 1.1; color: var(--ink); }
+  .tray { border: 1px solid var(--hair2); padding: 10px; margin-top: 12px; }
+  .tray-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-family: var(--font-mono); font-size: 11px; }
+  .tray-row .dot { width: 14px; height: 14px; border: 1px solid rgba(0,0,0,0.4); }
+  .tray-row .pname { flex: 1; color: var(--ink); }
+  .tray-row .parts { color: var(--brass); min-width: 16px; text-align: center; }
+  .tray-row button { appearance: none; background: transparent; border: 1px solid var(--hair2); color: var(--muted); width: 20px; height: 20px; cursor: pointer; font-family: var(--font-mono); }
+  .mix-result { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .mix-result .big { width: 60px; height: 60px; border: 1px solid var(--hair2); }
+  .mix-result .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); line-height: 1.6; }
+  .piginfo { font-family: var(--font-mono); font-size: 10px; color: var(--muted); line-height: 1.6; margin-top: 8px; min-height: 30px; }
+  .piginfo b { color: var(--brass); }
+
+  footer.readout { flex: 0 0 auto; border-top: 1px solid var(--hair); background: var(--plate); display: flex; align-items: center; gap: 20px; padding: 7px 22px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); overflow: hidden; white-space: nowrap; }
+  .readout .key { color: var(--brass-dim); text-transform: uppercase; letter-spacing: 0.14em; }
+  .readout .val { color: var(--ink); }
+  .readout .motto { margin-left: auto; color: #6f6450; letter-spacing: 0.22em; text-transform: uppercase; font-size: 9.5px; }
+
+  .dropping main.stage-wrap::after { content: "release to mount reference"; position: absolute; inset: 14px; border: 2px dashed var(--brass-dim); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass); background: rgba(21,18,14,0.7); }
+
+  .modal { position: fixed; inset: 0; background: rgba(10,8,5,0.8); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .modal.show { display: flex; }
+  .modal .card { background: var(--plate2); border: 1px solid var(--hair2); max-width: 560px; padding: 26px 30px; font-size: 13px; line-height: 1.65; color: var(--ink); }
+  .modal .card h2 { font-family: var(--font-display); letter-spacing: 0.3em; text-transform: uppercase; color: var(--parchment); font-size: 18px; margin: 0 0 14px; }
+  .modal .card p { margin: 8px 0; }
+  .modal .card code { font-family: var(--font-mono); color: var(--brass); font-size: 12px; }
+  .modal .card .close { margin-top: 16px; }
+
+  .hidden { display: none !important; }
+  @media (max-width: 760px) {
+    .frame { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    aside.panel { max-height: 46vh; }
+    .wordmark { font-size: 20px; letter-spacing: 0.3em; }
+    .pigment-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <header class="bench">
+    <div class="wordmark">Atelier</div>
+    <div class="designation"><span><b>Field Instrument No. 035</b></span><br><span>Preparatory Bench</span></div>
+    <div class="header-spacer"></div>
+    <div class="header-note" id="aboutBtn">About &middot; v0.5.0</div>
+  </header>
+
+  <div class="frame">
+    <aside class="panel">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-fam="see">See</button>
+        <button class="tab" data-fam="build">Build</button>
+        <button class="tab" data-fam="color">Color</button>
+        <button class="tab" data-fam="check">Check</button>
+      </div>
+      <div class="panel-scroll">
+
+        <!-- Document, always present -->
+        <div class="group" id="grpDoc">
+          <div class="legend"><span>Document</span><span class="idx">000</span></div>
+          <div class="btn-half">
+            <button class="btn primary" id="btnLoad">Mount</button>
+            <button class="btn" id="btnBlank">Blank</button>
+          </div>
+          <div class="row" style="margin-top:12px;"><label class="name">Format</label></div>
+          <div class="seg seg-wide" id="segFormat" style="flex-wrap:wrap;">
+            <button data-fmt="source" class="on">Src</button>
+            <button data-fmt="1:1">1:1</button>
+            <button data-fmt="4:5">4:5</button>
+            <button data-fmt="3:4">3:4</button>
+            <button data-fmt="2:3">2:3</button>
+            <button data-fmt="16:9">16:9</button>
+            <button data-fmt="phi">&phi;</button>
+            <button data-fmt="root2">&#8730;2</button>
+            <button data-fmt="root3">&#8730;3</button>
+            <button data-fmt="root5">&#8730;5</button>
+          </div>
+          <div id="cropControls" class="hidden">
+            <div class="keylabel">Crop explorer</div>
+            <div class="row"><span class="sub">Zoom</span><input type="range" id="rZoom" min="100" max="300" step="2" value="100"></div>
+            <div class="row"><span class="sub">Pan X</span><input type="range" id="rPanX" min="-100" max="100" step="1" value="0"></div>
+            <div class="row"><span class="sub">Pan Y</span><input type="range" id="rPanY" min="-100" max="100" step="1" value="0"></div>
+          </div>
+          <button class="btn" id="btnExport" style="margin-top:12px;">Export plate (png)</button>
+          <input type="file" id="fileInput" accept="image/*" class="hidden">
+        </div>
+
+        <!-- SEE -->
+        <div class="group fam fam-see" id="famSee">
+          <div class="legend"><span>See &middot; Reduce</span><span class="idx">reveal</span></div>
+          <div class="seg seg-wide" id="segMode">
+            <button data-mode="none" class="on">None</button>
+            <button data-mode="notan">Notan</button>
+            <button data-mode="temp">Temp</button>
+            <button data-mode="edge">Edges</button>
+          </div>
+
+          <div id="ctlNotan" class="hidden">
+            <div class="row"><span class="sub">Steps</span>
+              <div class="seg" id="segSteps">
+                <button data-steps="2">2</button><button data-steps="3" class="on">3</button>
+                <button data-steps="4">4</button><button data-steps="5">5</button>
+              </div>
+            </div>
+            <div class="row"><span class="sub">Squint</span><input type="range" id="rSquint" min="0" max="14" step="1" value="3"></div>
+            <div class="row"><span class="sub">Value bias</span><input type="range" id="rBias" min="-30" max="30" step="1" value="0"></div>
+          </div>
+          <div id="ctlTemp" class="hidden">
+            <div class="row"><span class="sub">Neutral band</span><input type="range" id="rNeutral" min="0" max="40" step="1" value="12"></div>
+            <div class="row"><span class="sub">Squint</span><input type="range" id="rSquintT" min="0" max="14" step="1" value="2"></div>
+            <div class="hint">Warm masses tint toward the lamp, cool masses toward shadow. Read the picture as two temperatures.</div>
+          </div>
+          <div id="ctlEdge" class="hidden">
+            <div class="row"><span class="sub">Threshold</span><input type="range" id="rEdge" min="5" max="80" step="1" value="28"></div>
+            <div class="row"><label class="name" for="tEdgeInv">Light on dark</label><input type="checkbox" id="tEdgeInv" class="toggle" checked></div>
+            <div class="hint">Sobel contrast. Bright where edges are hard, so you can plan what to lose and what to find.</div>
+          </div>
+
+          <div class="row" style="margin-top:14px;"><label class="name" for="tKey">Color key</label><input type="checkbox" id="tKey" class="toggle"></div>
+          <div id="keyArea" class="hidden">
+            <div class="keylabel">Extracted palette</div>
+            <div class="keystrip" id="keyStrip"></div>
+            <div class="hint">The dominant notes, sorted by value. These carry into the Color family as targets.</div>
+          </div>
+        </div>
+
+        <!-- BUILD -->
+        <div class="group fam fam-build hidden" id="famBuild">
+          <div class="legend"><span>Build &middot; Armature</span><span class="idx">structure</span></div>
+          <div class="row"><label class="name" for="tThirds">Rule of thirds</label><input type="checkbox" id="tThirds" class="toggle"></div>
+          <div class="row"><label class="name" for="tGolden">Golden section</label><input type="checkbox" id="tGolden" class="toggle"></div>
+          <div class="row"><label class="name" for="tDyn">Dynamic symmetry</label><input type="checkbox" id="tDyn" class="toggle"></div>
+          <div class="row"><label class="name" for="tRabat">Rabatment</label><input type="checkbox" id="tRabat" class="toggle"></div>
+          <div class="row"><label class="name" for="tSpiral">Golden spiral</label><input type="checkbox" id="tSpiral" class="toggle"></div>
+          <div class="row hidden" id="rowCorner"><span class="sub">Pole</span>
+            <div class="corner-grid" id="cornerGrid">
+              <button data-corner="tl">&#9698;</button><button data-corner="tr" class="on">&#9699;</button>
+              <button data-corner="bl">&#9701;</button><button data-corner="br">&#9700;</button>
+            </div>
+          </div>
+          <div class="row"><label class="name" for="tCenter">Center cross</label><input type="checkbox" id="tCenter" class="toggle"></div>
+          <div class="row"><label class="name" for="tNodes">Show nodes</label><input type="checkbox" id="tNodes" class="toggle" checked></div>
+          <div class="row"><span class="sub">Line weight</span><input type="range" id="rArmAlpha" min="15" max="100" step="5" value="70"></div>
+
+          <div class="legend" style="margin-top:18px;"><span>Transfer grid</span><span class="idx">scale</span></div>
+          <div class="row"><label class="name" for="tGrid">Grid</label><input type="checkbox" id="tGrid" class="toggle"></div>
+          <div class="row"><span class="sub">Columns</span><input type="range" id="rCols" min="2" max="16" step="1" value="6"></div>
+          <div class="row"><span class="sub">Plate width</span><input type="number" id="nPhys" value="12" min="1" step="0.5"></div>
+          <div class="row"><span class="sub">Unit</span>
+            <div class="seg" id="segUnit"><button data-unit="in" class="on">in</button><button data-unit="cm">cm</button></div>
+          </div>
+          <div class="hint" id="gridReadout">Square up the reference to scale it onto a physical surface.</div>
+
+          <div class="legend" style="margin-top:18px;"><span>Perspective</span><span class="idx">depth</span></div>
+          <div class="row"><label class="name" for="tPersp">Perspective</label><input type="checkbox" id="tPersp" class="toggle"></div>
+          <div class="row"><span class="sub">Points</span>
+            <div class="seg" id="segPts"><button data-pts="1">1</button><button data-pts="2" class="on">2</button><button data-pts="3">3</button></div>
+          </div>
+          <div class="row"><span class="sub">Horizon</span><input type="range" id="rHorizon" min="5" max="95" step="1" value="45"></div>
+          <div class="row"><span class="sub">VP left</span><input type="range" id="rVp1" min="-60" max="60" step="1" value="-15"></div>
+          <div class="row"><span class="sub">VP right</span><input type="range" id="rVp2" min="40" max="160" step="1" value="115"></div>
+          <div class="row" id="rowVp3"><span class="sub">VP vert</span><input type="range" id="rVp3" min="-80" max="180" step="1" value="160"></div>
+          <div class="row"><span class="sub">Rays</span><input type="range" id="rRays" min="4" max="18" step="1" value="9"></div>
+        </div>
+
+        <!-- COLOR -->
+        <div class="group fam fam-color hidden" id="famColor">
+          <div class="legend"><span>Color</span><span class="idx">plan</span></div>
+          <div class="subtabs" id="colorSub">
+            <button data-sub="harmony" class="on">Harmony</button>
+            <button data-sub="gamut">Gamut</button>
+            <button data-sub="mix">Mixing</button>
+          </div>
+
+          <div id="subHarmony">
+            <div class="row"><span class="sub">Base hue</span><input type="range" id="rHue" min="0" max="359" step="1" value="30"></div>
+            <div class="row"><span class="sub">Scheme</span></div>
+            <div class="seg seg-wide" id="segScheme" style="flex-wrap:wrap;">
+              <button data-s="complement" class="on">Comp</button>
+              <button data-s="analogous">Analog</button>
+              <button data-s="triad">Triad</button>
+              <button data-s="split">Split</button>
+              <button data-s="tetrad">Tetrad</button>
+            </div>
+            <div class="hint">Rotate the wheel to find a scheme. The swatches below the wheel are the chosen notes.</div>
+          </div>
+
+          <div id="subGamut" class="hidden">
+            <div class="row"><span class="sub">Rotate</span><input type="range" id="rGamRot" min="0" max="359" step="1" value="20"></div>
+            <div class="row"><span class="sub">Size</span><input type="range" id="rGamSize" min="20" max="98" step="1" value="70"></div>
+            <div class="hint">A Gurney mask. Keep the whole picture inside the triangle and the palette stays in harmony. The vertices are your extremes.</div>
+          </div>
+
+          <div id="subMix" class="hidden">
+            <div class="keylabel">Pigment library</div>
+            <div class="pigment-list" id="pigList"></div>
+            <div class="piginfo" id="pigInfo">Click a pigment to read it. Click again to add it to the tray.</div>
+            <div class="tray" id="tray"><div class="hint">Tray empty. Build a mixture from two or more pigments.</div></div>
+            <div class="mix-result hidden" id="mixResult">
+              <div class="big" id="mixBig"></div>
+              <div class="meta" id="mixMeta"></div>
+            </div>
+            <button class="btn" id="btnClearTray" style="margin-top:10px;">Clear tray</button>
+            <div class="keylabel" id="matchLabel" style="display:none;">Nearest pigment to each key</div>
+            <div class="piginfo" id="matchInfo"></div>
+          </div>
+        </div>
+
+        <!-- CHECK -->
+        <div class="group fam fam-check hidden" id="famCheck">
+          <div class="legend"><span>Check</span><span class="idx">bench</span></div>
+          <div class="row"><label class="name" for="tFlipH">Flip horizontal</label><input type="checkbox" id="tFlipH" class="toggle"></div>
+          <div class="row"><label class="name" for="tFlipV">Flip vertical</label><input type="checkbox" id="tFlipV" class="toggle"></div>
+          <div class="row"><label class="name" for="tMass">Value mass center</label><input type="checkbox" id="tMass" class="toggle"></div>
+          <div class="hint" id="massReadout">The dark mass centroid, marked against true center. Tells you which way the picture leans.</div>
+
+          <div class="legend" style="margin-top:18px;"><span>Sighting</span><span class="idx">measure</span></div>
+          <div class="row"><label class="name" for="tMeasure">Caliper</label><input type="checkbox" id="tMeasure" class="toggle"></div>
+          <div class="hint" id="measureReadout">With the caliper on, click two points on the plate to read the angle and length. Set a span as the unit to compare proportions.</div>
+          <div class="btn-half" style="margin-top:8px;">
+            <button class="btn" id="btnSetUnit">Set unit</button>
+            <button class="btn" id="btnClearMeasure">Clear</button>
+          </div>
+
+          <div class="legend" style="margin-top:18px;"><span>Small multiples</span><span class="idx">compare</span></div>
+          <div class="row"><label class="name" for="tMult">Show notan ladder</label><input type="checkbox" id="tMult" class="toggle"></div>
+          <div class="hint">Two, three, and four value studies side by side, under the stage.</div>
+
+          <div class="legend" style="margin-top:18px;"><span>Focal</span><span class="idx">reading</span></div>
+          <div class="hint" id="focalReadout">Click the plate to drop a focal marker. The reading appears here and in the status strip.</div>
+        </div>
+
+      </div>
+    </aside>
+
+    <main class="stage-wrap" id="stageWrap">
+      <div class="stagecol" id="stageCol">
+        <div class="stage show-plate" id="stage">
+          <div class="ruler" id="ruler"></div>
+          <div class="plate-area" id="plateArea">
+            <div class="corner tl"></div><div class="corner tr"></div>
+            <div class="corner bl"></div><div class="corner br"></div>
+            <div class="empty" id="empty">
+              <b>No reference mounted.</b><br><br>
+              Mount a reference or lay a blank ground,<br>
+              then reduce it to value and read its bones.<br><br>
+              Drag an image onto the bench to begin.
+            </div>
+            <canvas id="cvBase" class="hidden"></canvas>
+            <canvas id="cvArm" class="hidden"></canvas>
+          </div>
+        </div>
+
+        <div class="colorstage" id="colorStage">
+          <div class="wheelwrap">
+            <canvas id="cvWheel" width="300" height="300"></canvas>
+            <canvas id="cvWheelOv" width="300" height="300"></canvas>
+          </div>
+          <div class="swatches" id="swatches"></div>
+        </div>
+
+        <div class="multiples hidden" id="multiples"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="readout">
+    <span><span class="key">Ref</span> <span class="val" id="roRef">none</span></span>
+    <span><span class="key">Plate</span> <span class="val" id="roPlate">0 &times; 0</span></span>
+    <span><span class="key">Format</span> <span class="val" id="roFormat">source</span></span>
+    <span><span class="key">Layers</span> <span class="val" id="roLayers">none</span></span>
+    <span><span class="key">Focal</span> <span class="val" id="roFocal">unset</span></span>
+    <span class="motto">Make. Hack. Learn. Share. Repeat.</span>
+  </footer>
+
+  <div class="modal" id="aboutModal">
+    <div class="card">
+      <h2>Atelier</h2>
+      <p>Field Instrument No. 035, the preparatory bench. Everything worked out before a brush touches the surface, in four families that share one document.</p>
+      <p><b>See</b> reduces the picture to value, temperature, or edges, and lifts a color key. <b>Build</b> lays the armature, transfer grid, and perspective. <b>Color</b> holds the harmony wheel, the Gurney gamut mask, and the Kubelka-Munk mixing bench. <b>Check</b> flips, measures, and weighs the design.</p>
+      <p>The reference never leaves your browser. All processing is local. License <code>GPL-3.0</code>.</p>
+      <p>Click the plate to drop a focal marker. Drag an image onto the bench to mount it.</p>
+      <button class="btn close" id="aboutClose">Close</button>
+    </div>
+  </div>
+
+<script>
+"use strict";
+(function () {
+  // ---------------- Shared document ----------------
+  var doc = {
+    img: null, name: "none", isBlank: false, blankValue: 128,
+    format: "source", ratio: null, work: { w: 0, h: 0 },
+    crop: { zoom: 1, panX: 0, panY: 0 },
+    flipH: false, flipV: false,
+    focal: null, palette: []
+  };
+  var see = { mode: "none", steps: 3, squint: 3, bias: 0, neutral: 12, squintT: 2, edge: 28, edgeLight: true, key: false };
+  var build = {
+    thirds: false, golden: false, dyn: false, rabat: false, spiral: false, center: false,
+    nodes: true, corner: "tr", alpha: 0.70,
+    grid: false, cols: 6, phys: 12, unit: "in",
+    persp: false, pts: 2, horizon: 45, vp1: -15, vp2: 115, vp3: 160, rays: 9
+  };
+  var color = { sub: "harmony", hue: 30, scheme: "complement", gamRot: 20, gamSize: 70, tray: [] };
+  var check = { mass: false, measure: false, mult: false, points: [], unit: null };
+
+  var MAXDIM = 1500;
+  var FORMATS = {
+    "source": null, "1:1": [1,1], "4:5": [4,5], "3:4": [3,4], "2:3": [2,3],
+    "16:9": [16,9], "phi": [1.618,1], "root2": [Math.SQRT2,1], "root3": [Math.sqrt(3),1], "root5": [Math.sqrt(5),1]
+  };
+
+  // ---------------- Pigments (curated core) ----------------
+  // rgb is the masstone. lf lightfastness, op opacity, note one line.
+  var PIGMENTS = [
+    ["Titanium White",[245,245,240],"I","Opaque","Strong cool modern white."],
+    ["Zinc White",[250,250,248],"I","Semi","Cool weak tinting white."],
+    ["Naples Yellow",[250,225,150],"I","Opaque","Soft warm historic lead hue."],
+    ["Cadmium Yellow Lt",[255,230,40],"I","Opaque","Brilliant cool yellow."],
+    ["Cadmium Yellow Md",[255,200,20],"I","Opaque","Warm saturated yellow."],
+    ["Yellow Ochre",[200,150,60],"I","Opaque","Ancient mild warm earth."],
+    ["Raw Sienna",[170,110,50],"I","Transparent","Warm transparent earth."],
+    ["Raw Umber",[90,70,45],"I","Semi","Cool dark earth, fast drier."],
+    ["Burnt Sienna",[140,70,40],"I","Transparent","Warm glazing red earth."],
+    ["Burnt Umber",[75,50,35],"I","Semi","Deep warm brown."],
+    ["Cadmium Orange",[245,110,30],"I","Opaque","Intense warm orange."],
+    ["Cadmium Red Lt",[220,50,40],"I","Opaque","Warm opaque red."],
+    ["Cadmium Red Deep",[170,30,35],"I","Opaque","Cool deep red."],
+    ["Quinacridone Rose",[200,30,90],"I","Transparent","Brilliant cool transparent rose."],
+    ["Alizarin Crimson",[135,25,40],"III","Transparent","Deep crimson, less permanent."],
+    ["Venetian Red",[150,60,50],"I","Opaque","Dull opaque red earth."],
+    ["Dioxazine Purple",[75,30,90],"II","Transparent","Very strong deep violet."],
+    ["Ultramarine Blue",[40,50,140],"I","Transparent","Warm transparent blue."],
+    ["Cobalt Blue",[30,70,160],"I","Semi","Clean costly mid blue."],
+    ["Cerulean Blue",[40,120,180],"I","Opaque","Opaque granulating sky blue."],
+    ["Phthalo Blue",[15,60,130],"I","Transparent","Intense staining blue."],
+    ["Prussian Blue",[20,45,80],"I","Transparent","Dark strong green-blue."],
+    ["Viridian",[20,120,100],"I","Transparent","Gentle cool blue-green."],
+    ["Phthalo Green",[10,110,90],"I","Transparent","Intense staining green."],
+    ["Sap Green",[70,110,45],"II","Transparent","Warm transparent green."],
+    ["Chrome Oxide Green",[90,110,70],"I","Opaque","Dull opaque olive."],
+    ["Ivory Black",[30,30,32],"I","Semi","Slightly warm soft black."],
+    ["Lamp Black",[25,25,25],"I","Opaque","Cool dense black."],
+    ["Payne's Grey",[50,60,75],"I","Semi","Blue-grey mixing convenience."]
+  ];
+
+  // ---------------- Canvases ----------------
+  var srcCanvas = document.createElement("canvas"), srcCtx = srcCanvas.getContext("2d", { willReadFrequently: true });
+  var procCanvas = document.createElement("canvas"), procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
+  var cvBase = document.getElementById("cvBase"), baseCtx = cvBase.getContext("2d");
+  var cvArm = document.getElementById("cvArm"), armCtx = cvArm.getContext("2d");
+  var cvWheel = document.getElementById("cvWheel"), wheelCtx = cvWheel.getContext("2d");
+  var cvWheelOv = document.getElementById("cvWheelOv"), wheelOv = cvWheelOv.getContext("2d");
+
+  function byId(id) { return document.getElementById(id); }
+  var els = {
+    empty: byId("empty"), plateArea: byId("plateArea"), stage: byId("stage"), stageWrap: byId("stageWrap"),
+    ruler: byId("ruler"), colorStage: byId("colorStage"), multiples: byId("multiples"),
+    roRef: byId("roRef"), roPlate: byId("roPlate"), roFormat: byId("roFormat"), roLayers: byId("roLayers"), roFocal: byId("roFocal")
+  };
+
+  // ---------------- Color helpers ----------------
+  function hsvToRgb(h, s, v) {
+    h = ((h % 360) + 360) % 360; var c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c, r, g, b;
+    if (h < 60) { r = c; g = x; b = 0; } else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; } else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; } else { r = c; g = 0; b = x; }
+    return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+  }
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255; var mx = Math.max(r, g, b), mn = Math.min(r, g, b), h = 0, s = 0, l = (mx + mn) / 2;
+    if (mx !== mn) { var d = mx - mn; s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+      if (mx === r) h = (g - b) / d + (g < b ? 6 : 0); else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; }
+    return [h, s, l];
+  }
+  function hex(rgb) { return "#" + rgb.map(function (v) { return ("0" + Math.round(v).toString(16)).slice(-2); }).join(""); }
+  function rgbToLab(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+    var x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+    var y = (r * 0.2126 + g * 0.7152 + b * 0.0722);
+    var z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+    function f(t) { return t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116; }
+    return [116 * f(y) - 16, 500 * (f(x) - f(y)), 200 * (f(y) - f(z))];
+  }
+  function labDist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]); }
+
+  // Single-constant Kubelka-Munk subtractive mixing in rgb channels
+  function kmMix(entries) {
+    // entries: [{rgb,c}]; c are concentrations summing to 1
+    var ks = [0, 0, 0];
+    entries.forEach(function (e) {
+      for (var ch = 0; ch < 3; ch++) {
+        var R = Math.min(0.992, Math.max(0.008, e.rgb[ch] / 255));
+        ks[ch] += e.c * ((1 - R) * (1 - R)) / (2 * R);
+      }
+    });
+    return ks.map(function (x) {
+      var R = 1 + x - Math.sqrt(x * x + 2 * x);
+      return Math.round(Math.min(1, Math.max(0, R)) * 255);
+    });
+  }
+
+  // ---------------- Source preparation ----------------
+  function computeRatio() {
+    if (doc.format === "source") return doc.img ? { w: doc.img.naturalWidth, h: doc.img.naturalHeight } : { w: 4, h: 5 };
+    var f = FORMATS[doc.format]; return { w: f[0], h: f[1] };
+  }
+  function prepareSource() {
+    doc.ratio = computeRatio();
+    var ar = doc.ratio.w / doc.ratio.h, w, h;
+    if (ar >= 1) { w = MAXDIM; h = Math.round(MAXDIM / ar); } else { h = MAXDIM; w = Math.round(MAXDIM * ar); }
+    doc.work = { w: w, h: h };
+    srcCanvas.width = w; srcCanvas.height = h;
+    if (doc.isBlank) {
+      srcCtx.fillStyle = "rgb(" + doc.blankValue + "," + doc.blankValue + "," + doc.blankValue + ")";
+      srcCtx.fillRect(0, 0, w, h);
+    } else if (doc.img) {
+      var iw = doc.img.naturalWidth, ih = doc.img.naturalHeight;
+      var z = doc.crop.zoom;
+      var scale = Math.max(w / iw, h / ih) * z;
+      var dw = iw * scale, dh = ih * scale;
+      var dx = (w - dw) / 2 + (doc.crop.panX / 100) * (dw - w) / 2;
+      var dy = (h - dh) / 2 + (doc.crop.panY / 100) * (dh - h) / 2;
+      srcCtx.clearRect(0, 0, w, h);
+      srcCtx.drawImage(doc.img, dx, dy, dw, dh);
+    }
+    if (see.key) extractKey();
+  }
+
+  // ---------------- Reductions ----------------
+  function blurred(srcC, radius) {
+    var w = srcC.width, h = srcC.height;
+    var t = document.createElement("canvas"); t.width = w; t.height = h;
+    var tc = t.getContext("2d", { willReadFrequently: true });
+    if (radius > 0 && tc.filter !== undefined) tc.filter = "blur(" + radius + "px)";
+    tc.drawImage(srcC, 0, 0); tc.filter = "none";
+    return tc.getImageData(0, 0, w, h);
+  }
+  function buildProcessed() {
+    var w = doc.work.w, h = doc.work.h;
+    procCanvas.width = w; procCanvas.height = h;
+    if (see.mode === "none") { procCtx.clearRect(0, 0, w, h); procCtx.drawImage(srcCanvas, 0, 0); return; }
+
+    if (see.mode === "notan") {
+      var d = blurred(srcCanvas, see.squint), px = d.data, n = see.steps, bias = see.bias / 100;
+      for (var i = 0; i < px.length; i += 4) {
+        var lum = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+        var t = lum / 255 + bias; if (t < 0) t = 0; else if (t > 1) t = 1;
+        var band = Math.floor(t * n); if (band >= n) band = n - 1;
+        var g = n > 1 ? Math.round((band / (n - 1)) * 255) : 128;
+        px[i] = px[i + 1] = px[i + 2] = g;
+      }
+      procCtx.putImageData(d, 0, 0); return;
+    }
+    if (see.mode === "temp") {
+      var dt = blurred(srcCanvas, see.squintT), p2 = dt.data, nb = see.neutral / 100;
+      for (var j = 0; j < p2.length; j += 4) {
+        var r = p2[j], gg = p2[j + 1], b = p2[j + 2];
+        var hsl = rgbToHsl(r, gg, b), hue = hsl[0], sat = hsl[1];
+        var lum2 = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+        var R, G, B;
+        if (sat < nb) { R = G = B = lum2; }
+        else {
+          var warm = (hue < 90 || hue >= 330);
+          if (warm) { R = Math.min(255, lum2 * 1.12 + 22); G = lum2 * 0.92; B = lum2 * 0.55; }
+          else { R = lum2 * 0.6; G = lum2 * 0.86; B = Math.min(255, lum2 * 1.12 + 22); }
+        }
+        p2[j] = R; p2[j + 1] = G; p2[j + 2] = B;
+      }
+      procCtx.putImageData(dt, 0, 0); return;
+    }
+    if (see.mode === "edge") {
+      var src = blurred(srcCanvas, 1), s = src.data;
+      var lumA = new Float32Array(w * h);
+      for (var k = 0, q = 0; k < s.length; k += 4, q++) lumA[q] = 0.2126 * s[k] + 0.7152 * s[k + 1] + 0.0722 * s[k + 2];
+      var out = procCtx.createImageData(w, h), o = out.data, thr = see.edge;
+      for (var y = 1; y < h - 1; y++) for (var x = 1; x < w - 1; x++) {
+        var a00 = lumA[(y-1)*w+(x-1)], a01 = lumA[(y-1)*w+x], a02 = lumA[(y-1)*w+(x+1)];
+        var a10 = lumA[y*w+(x-1)],                              a12 = lumA[y*w+(x+1)];
+        var a20 = lumA[(y+1)*w+(x-1)], a21 = lumA[(y+1)*w+x], a22 = lumA[(y+1)*w+(x+1)];
+        var gx = (a02 + 2*a12 + a22) - (a00 + 2*a10 + a20);
+        var gy = (a20 + 2*a21 + a22) - (a00 + 2*a01 + a02);
+        var mag = Math.hypot(gx, gy) / 4;
+        var v = mag > thr ? Math.min(255, mag) : 0;
+        var val = see.edgeLight ? v : 255 - v;
+        var idx = (y * w + x) * 4;
+        o[idx] = o[idx+1] = o[idx+2] = val; o[idx+3] = 255;
+      }
+      // fill borders
+      for (var bx = 0; bx < w; bx++) { setpx(o, w, bx, 0, see.edgeLight?0:255); setpx(o, w, bx, h-1, see.edgeLight?0:255); }
+      for (var by = 0; by < h; by++) { setpx(o, w, 0, by, see.edgeLight?0:255); setpx(o, w, w-1, by, see.edgeLight?0:255); }
+      procCtx.putImageData(out, 0, 0); return;
+    }
+  }
+  function setpx(o, w, x, y, v) { var i = (y * w + x) * 4; o[i] = o[i+1] = o[i+2] = v; o[i+3] = 255; }
+
+  // ---------------- Color key extraction (coarse histogram) ----------------
+  function extractKey() {
+    var w = 80, h = Math.max(1, Math.round(80 * doc.work.h / doc.work.w));
+    var t = document.createElement("canvas"); t.width = w; t.height = h;
+    var tc = t.getContext("2d"); tc.drawImage(srcCanvas, 0, 0, w, h);
+    var px = tc.getImageData(0, 0, w, h).data, buckets = {};
+    for (var i = 0; i < px.length; i += 4) {
+      var r = px[i] >> 5, g = px[i+1] >> 5, b = px[i+2] >> 5, kk = (r<<10)|(g<<5)|b;
+      if (!buckets[kk]) buckets[kk] = { n: 0, r: 0, g: 0, b: 0 };
+      var bk = buckets[kk]; bk.n++; bk.r += px[i]; bk.g += px[i+1]; bk.b += px[i+2];
+    }
+    var arr = Object.keys(buckets).map(function (kk) { var bk = buckets[kk]; return { n: bk.n, rgb: [bk.r/bk.n, bk.g/bk.n, bk.b/bk.n] }; });
+    arr.sort(function (a, b) { return b.n - a.n; });
+    var top = arr.slice(0, 7).map(function (e) { return e.rgb.map(Math.round); });
+    top.sort(function (a, b) { return (0.2126*a[0]+0.7152*a[1]+0.0722*a[2]) - (0.2126*b[0]+0.7152*b[1]+0.0722*b[2]); });
+    doc.palette = top;
+    renderKeyStrip();
+  }
+  function renderKeyStrip() {
+    var strip = byId("keyStrip"); strip.innerHTML = "";
+    doc.palette.forEach(function (c) {
+      var d = document.createElement("div"); d.className = "sw"; d.style.background = hex(c);
+      var s = document.createElement("span"); s.textContent = hex(c).slice(1); d.appendChild(s); strip.appendChild(d);
+    });
+    if (color.sub === "mix") renderMatches();
+  }
+
+  // ---------------- Fit and render plate ----------------
+  function fitAndRender() {
+    if (!doc.img && !doc.isBlank) { renderReadouts(); return; }
+    var availW = els.stageWrap.clientWidth - 44 - 62;
+    var availH = els.stageWrap.clientHeight - 44 - 28 - (check.mult ? 120 : 0);
+    availW = Math.max(140, availW); availH = Math.max(140, availH);
+    var ar = doc.work.w / doc.work.h, dispW = availW, dispH = availW / ar;
+    if (dispH > availH) { dispH = availH; dispW = availH * ar; }
+    dispW = Math.round(dispW); dispH = Math.round(dispH);
+    var dpr = window.devicePixelRatio || 1;
+    [cvBase, cvArm].forEach(function (c) { c.style.width = dispW + "px"; c.style.height = dispH + "px"; c.width = Math.round(dispW * dpr); c.height = Math.round(dispH * dpr); });
+
+    baseCtx.setTransform(dpr, 0, 0, dpr, 0, 0); baseCtx.imageSmoothingEnabled = true; baseCtx.clearRect(0, 0, dispW, dispH);
+    baseCtx.save();
+    baseCtx.translate(doc.flipH ? dispW : 0, doc.flipV ? dispH : 0);
+    baseCtx.scale(doc.flipH ? -1 : 1, doc.flipV ? -1 : 1);
+    baseCtx.drawImage(procCanvas, 0, 0, dispW, dispH);
+    baseCtx.restore();
+
+    drawOverlay(armCtx, dispW, dispH, dpr);
+    drawRuler();
+    if (check.mult) renderMultiples();
+    renderReadouts();
+  }
+
+  // ---------------- Geometry ----------------
+  function clipLine(px, py, dx, dy, W, H) {
+    var pts = [];
+    function add(x, y) { if (x >= -0.5 && x <= W + 0.5 && y >= -0.5 && y <= H + 0.5) pts.push([x, y]); }
+    if (Math.abs(dx) > 1e-9) { add(0, py + dy * ((0 - px) / dx)); add(W, py + dy * ((W - px) / dx)); }
+    if (Math.abs(dy) > 1e-9) { add(px + dx * ((0 - py) / dy), 0); add(px + dx * ((H - py) / dy), H); }
+    if (pts.length < 2) return null;
+    var a = pts[0], b = pts[1], best = -1;
+    for (var i = 0; i < pts.length; i++) for (var j = i + 1; j < pts.length; j++) {
+      var d = Math.hypot(pts[i][0]-pts[j][0], pts[i][1]-pts[j][1]); if (d > best) { best = d; a = pts[i]; b = pts[j]; }
+    }
+    return [a[0], a[1], b[0], b[1]];
+  }
+  function intersect(a, b, c, d) {
+    var x1=a[0],y1=a[1],x2=b[0],y2=b[1],x3=c[0],y3=c[1],x4=d[0],y4=d[1];
+    var den=(x1-x2)*(y3-y4)-(y1-y2)*(x3-x4); if (Math.abs(den)<1e-9) return null;
+    return [((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/den, ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/den];
+  }
+  function collectNodes(W, H) {
+    var nodes = [];
+    if (build.thirds) [W/3,2*W/3].forEach(function (x){ [H/3,2*H/3].forEach(function (y){ nodes.push([x,y]); }); });
+    if (build.golden) [W*0.382,W*0.618].forEach(function (x){ [H*0.382,H*0.618].forEach(function (y){ nodes.push([x,y]); }); });
+    if (build.dyn) {
+      var r1=clipLine(W,0,H,-W,W,H), r2=clipLine(0,H,H,-W,W,H), r3=clipLine(0,0,H,W,W,H), r4=clipLine(W,H,H,W,W,H);
+      [r1,r2].forEach(function (r){ if(r){ var p=intersect([0,0],[W,H],[r[0],r[1]],[r[2],r[3]]); if(p) nodes.push(p); } });
+      [r3,r4].forEach(function (r){ if(r){ var p=intersect([W,0],[0,H],[r[0],r[1]],[r[2],r[3]]); if(p) nodes.push(p); } });
+    }
+    if (build.center) nodes.push([W/2, H/2]);
+    return nodes;
+  }
+  function goldenSpiralPoints(W, H, corner) {
+    var phi = 1.6180339887, eye;
+    if (corner==="tl") eye=[W*0.382,H*0.382]; else if (corner==="tr") eye=[W*0.618,H*0.382];
+    else if (corner==="bl") eye=[W*0.382,H*0.618]; else eye=[W*0.618,H*0.618];
+    var phase = { tl:Math.PI, tr:Math.PI*1.5, br:0, bl:Math.PI*0.5 }[corner];
+    var R = Math.hypot(W, H), k = Math.log(phi) / (Math.PI/2), pts = [];
+    for (var theta = 7*Math.PI; theta > -2*Math.PI; theta -= 0.06) {
+      var r = R * Math.exp(-k * (7*Math.PI - theta)), a = theta + phase;
+      pts.push([eye[0] + r*Math.cos(a), eye[1] + r*Math.sin(a)]);
+    }
+    return pts;
+  }
+
+  // ---------------- Overlay (armature + grid + perspective + check) ----------------
+  function drawOverlay(ctx, W, H, dpr) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H); ctx.lineWidth = 1;
+    var brass = "rgba(199,154,78," + build.alpha + ")", faint = "rgba(199,154,78," + (build.alpha*0.55) + ")";
+    function L(x1,y1,x2,y2,c){ ctx.strokeStyle=c; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+
+    if (build.thirds) { L(W/3,0,W/3,H,brass); L(2*W/3,0,2*W/3,H,brass); L(0,H/3,W,H/3,brass); L(0,2*H/3,W,2*H/3,brass); }
+    if (build.golden) [0.382,0.618].forEach(function (f){ L(W*f,0,W*f,H,brass); L(0,H*f,W,H*f,brass); });
+    if (build.dyn) {
+      L(0,0,W,H,brass); L(W,0,0,H,brass);
+      [clipLine(W,0,H,-W,W,H),clipLine(0,H,H,-W,W,H),clipLine(0,0,H,W,W,H),clipLine(W,H,H,W,W,H)].forEach(function (r){ if(r) L(r[0],r[1],r[2],r[3],faint); });
+    }
+    if (build.rabat) {
+      var s = Math.min(W, H);
+      // squares brought down from each short side
+      if (W >= H) { L(s,0,s,H,faint); L(W-s,0,W-s,H,faint); }
+      else { L(0,s,W,s,faint); L(0,H-s,W,H-s,faint); }
+    }
+    if (build.spiral) {
+      var pts = goldenSpiralPoints(W, H, build.corner);
+      ctx.save(); ctx.beginPath(); ctx.rect(0,0,W,H); ctx.clip();
+      ctx.strokeStyle = brass; ctx.lineWidth = 1.4; ctx.beginPath();
+      pts.forEach(function (p,i){ i? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]); }); ctx.stroke(); ctx.restore();
+    }
+    if (build.center) { L(W/2,0,W/2,H,faint); L(0,H/2,W,H/2,faint); }
+
+    if (build.grid) {
+      ctx.strokeStyle = "rgba(176,106,58,0.5)";
+      var cw = W / build.cols, rows = Math.max(1, Math.round(build.cols * H / W));
+      for (var i = 1; i < build.cols; i++) L(i*cw, 0, i*cw, H, "rgba(176,106,58,0.5)");
+      var rh = H / rows;
+      for (var jj = 1; jj < rows; jj++) L(0, jj*rh, W, jj*rh, "rgba(176,106,58,0.5)");
+    }
+
+    if (build.persp) drawPerspective(ctx, W, H);
+
+    if (build.nodes && (build.thirds||build.golden||build.dyn||build.center)) {
+      ctx.fillStyle = "rgba(199,154,78," + Math.min(1, build.alpha+0.2) + ")";
+      collectNodes(W, H).forEach(function (p){ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2); ctx.fill(); });
+    }
+
+    if (check.mass && (doc.img || doc.isBlank)) drawMassCenter(ctx, W, H);
+    if (check.measure) drawMeasure(ctx, W, H);
+
+    if (doc.focal) {
+      var fx = doc.focal.x*W, fy = doc.focal.y*H;
+      ctx.strokeStyle = "rgba(95,176,166,0.95)"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(fx,fy,7,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(fx-11,fy); ctx.lineTo(fx+11,fy); ctx.moveTo(fx,fy-11); ctx.lineTo(fx,fy+11); ctx.stroke();
+    }
+  }
+
+  function drawPerspective(ctx, W, H) {
+    var hy = (build.horizon/100)*H;
+    ctx.strokeStyle = "rgba(95,176,166,0.55)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, hy); ctx.lineTo(W, hy); ctx.stroke();
+    var col = "rgba(199,154,78," + build.alpha + ")";
+    function fan(vx, vy) {
+      // angles to four corners, fan rays between min and max
+      var corners = [[0,0],[W,0],[W,H],[0,H]];
+      var angs = corners.map(function (c){ return Math.atan2(c[1]-vy, c[0]-vx); });
+      var amin = Math.min.apply(null, angs), amax = Math.max.apply(null, angs);
+      if (amax - amin > Math.PI) { // wrap, shift negatives
+        angs = angs.map(function (a){ return a < 0 ? a + 2*Math.PI : a; });
+        amin = Math.min.apply(null, angs); amax = Math.max.apply(null, angs);
+      }
+      for (var i = 0; i <= build.rays; i++) {
+        var a = amin + (amax - amin) * (i / build.rays);
+        var seg = clipLine(vx, vy, Math.cos(a), Math.sin(a), W, H);
+        if (seg) { ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(seg[0],seg[1]); ctx.lineTo(seg[2],seg[3]); ctx.stroke(); }
+      }
+    }
+    var vp1x = (build.vp1/100)*W, vp2x = (build.vp2/100)*W;
+    if (build.pts === 1) { fan(W/2, hy); }
+    else { fan(vp1x, hy); fan(vp2x, hy); }
+    if (build.pts === 3) { var vy3 = (build.vp3/100)*H; fan(W/2, vy3); }
+  }
+
+  function massCentroid() {
+    var w = doc.work.w, h = doc.work.h;
+    var d = procCtx.getImageData(0, 0, w, h).data;
+    var sx = 0, sy = 0, sw = 0, step = Math.max(1, Math.floor(w/200));
+    for (var y = 0; y < h; y += step) for (var x = 0; x < w; x += step) {
+      var i = (y*w+x)*4, lum = 0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2], wt = (255 - lum);
+      sx += x*wt; sy += y*wt; sw += wt;
+    }
+    if (sw === 0) return { x: 0.5, y: 0.5 };
+    return { x: sx/sw/w, y: sy/sw/h };
+  }
+  function drawMassCenter(ctx, W, H) {
+    var c = massCentroid(), cx = c.x*W, cy = c.y*H;
+    ctx.strokeStyle = "rgba(176,106,58,0.5)"; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(176,106,58,0.9)"; ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "rgba(176,106,58,0.9)"; ctx.beginPath(); ctx.arc(cx,cy,9,0,Math.PI*2); ctx.stroke();
+    var dx = ((c.x-0.5)*100).toFixed(1), dy = ((c.y-0.5)*100).toFixed(1);
+    byId("massReadout").textContent = "Dark mass center " + dx + "% horizontal, " + dy + "% vertical from center. "
+      + (Math.abs(c.x-0.5)<0.05 && Math.abs(c.y-0.5)<0.05 ? "Well balanced." : "Leaning " + (c.x<0.5?"left":"right") + " and " + (c.y<0.5?"high":"low") + ".");
+  }
+
+  function drawMeasure(ctx, W, H) {
+    var pts = check.points;
+    ctx.fillStyle = "rgba(95,176,166,0.95)"; ctx.strokeStyle = "rgba(95,176,166,0.95)"; ctx.lineWidth = 1.2;
+    pts.forEach(function (p){ ctx.beginPath(); ctx.arc(p.x*W, p.y*H, 4, 0, Math.PI*2); ctx.fill(); });
+    if (pts.length === 2) {
+      var ax = pts[0].x*W, ay = pts[0].y*H, bx = pts[1].x*W, by = pts[1].y*H;
+      ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+    }
+  }
+
+  // ---------------- Ruler ----------------
+  function drawRuler() {
+    var n = see.mode === "notan" ? see.steps : 5;
+    var h = cvBase.clientHeight || els.plateArea.clientHeight || 300, html = "";
+    for (var i = 0; i < n; i++) {
+      var g = n > 1 ? Math.round((i/(n-1))*255) : 128, top = (i/n)*100, ht = (1/n)*100;
+      html += '<div style="position:absolute;left:6px;right:0;top:' + top + '%;height:' + ht + '%;background:rgb(' + g + ',' + g + ',' + g + ');opacity:0.85;border-top:1px solid rgba(0,0,0,0.4);"></div>';
+    }
+    els.ruler.style.height = h + "px";
+    els.ruler.innerHTML = html + '<div style="position:absolute;left:-2px;top:-14px;font-size:8px;color:var(--brass-dim);letter-spacing:0.1em;">VAL</div>';
+  }
+
+  // ---------------- Small multiples ----------------
+  function renderMultiples() {
+    var box = els.multiples; box.innerHTML = ""; box.classList.remove("hidden");
+    [2,3,4].forEach(function (n) {
+      var fig = document.createElement("figure");
+      var c = document.createElement("canvas");
+      var tw = 150, th = Math.round(tw * doc.work.h / doc.work.w);
+      c.width = tw; c.height = th;
+      var cc = c.getContext("2d");
+      var d = blurred(srcCanvas, 3), px = d.data;
+      var tmp = document.createElement("canvas"); tmp.width = doc.work.w; tmp.height = doc.work.h;
+      var tctx = tmp.getContext("2d");
+      var id = tctx.createImageData(doc.work.w, doc.work.h), o = id.data;
+      for (var i = 0; i < px.length; i += 4) {
+        var lum = 0.2126*px[i]+0.7152*px[i+1]+0.0722*px[i+2], band = Math.floor((lum/255)*n);
+        if (band >= n) band = n-1; var g = Math.round((band/(n-1))*255);
+        o[i]=o[i+1]=o[i+2]=g; o[i+3]=255;
+      }
+      tctx.putImageData(id, 0, 0); cc.drawImage(tmp, 0, 0, tw, th);
+      var cap = document.createElement("figcaption"); cap.textContent = n + " values";
+      fig.appendChild(c); fig.appendChild(cap); box.appendChild(fig);
+    });
+  }
+
+  // ---------------- Color workbench ----------------
+  function drawWheel() {
+    var sz = cvWheel.width, r = sz/2, img = wheelCtx.createImageData(sz, sz), p = img.data;
+    for (var y = 0; y < sz; y++) for (var x = 0; x < sz; x++) {
+      var dx = x - r, dy = y - r, dist = Math.hypot(dx, dy), idx = (y*sz+x)*4;
+      if (dist <= r) {
+        var hue = (Math.atan2(dy, dx) * 180/Math.PI + 360) % 360, sat = dist/r;
+        var c = hsvToRgb(hue, sat, 1); p[idx]=c[0]; p[idx+1]=c[1]; p[idx+2]=c[2]; p[idx+3]=255;
+      } else { p[idx+3] = 0; }
+    }
+    wheelCtx.putImageData(img, 0, 0);
+  }
+  function wheelColorAt(hue, sat) { return hsvToRgb(hue, sat, 1); }
+  function schemeHues() {
+    var h = color.hue;
+    switch (color.scheme) {
+      case "complement": return [h, h+180];
+      case "analogous": return [h-30, h, h+30];
+      case "triad": return [h, h+120, h+240];
+      case "split": return [h, h+150, h+210];
+      case "tetrad": return [h, h+90, h+180, h+270];
+    }
+    return [h];
+  }
+  function renderColorStage() {
+    drawWheel();
+    var sz = cvWheelOv.width, r = sz/2; wheelOv.clearRect(0, 0, sz, sz);
+    var sw = byId("swatches"); sw.innerHTML = "";
+    function markerAt(hue, sat, primary) {
+      var a = hue*Math.PI/180, px = r + Math.cos(a)*sat*r, py = r + Math.sin(a)*sat*r;
+      wheelOv.strokeStyle = "rgba(231,220,194,0.95)"; wheelOv.lineWidth = primary?2.5:1.5;
+      wheelOv.beginPath(); wheelOv.arc(px, py, primary?9:7, 0, Math.PI*2); wheelOv.stroke();
+    }
+    function addChip(rgb, label) {
+      var d = document.createElement("div"); d.className = "chip tall"; d.style.background = hex(rgb);
+      var s = document.createElement("small"); s.textContent = hex(rgb); d.appendChild(s); sw.appendChild(d);
+    }
+    if (color.sub === "harmony") {
+      var hues = schemeHues();
+      hues.forEach(function (h, i){ markerAt(h, 0.72, i===0); var c = wheelColorAt(((h%360)+360)%360, 0.72); addChip(c); });
+    } else if (color.sub === "gamut") {
+      // triangle mask
+      var verts = [];
+      for (var i = 0; i < 3; i++) {
+        var ang = (color.gamRot + i*120) * Math.PI/180, sat = color.gamSize/100;
+        verts.push([r + Math.cos(ang)*sat*r, r + Math.sin(ang)*sat*r, ((color.gamRot+i*120)%360+360)%360, sat]);
+      }
+      // dim outside triangle
+      wheelOv.save();
+      wheelOv.beginPath(); wheelOv.rect(0,0,sz,sz);
+      wheelOv.moveTo(verts[0][0],verts[0][1]); wheelOv.lineTo(verts[2][0],verts[2][1]); wheelOv.lineTo(verts[1][0],verts[1][1]); wheelOv.closePath();
+      wheelOv.fillStyle = "rgba(21,18,14,0.62)"; wheelOv.fill("evenodd");
+      wheelOv.restore();
+      wheelOv.strokeStyle = "rgba(231,220,194,0.9)"; wheelOv.lineWidth = 1.5;
+      wheelOv.beginPath(); wheelOv.moveTo(verts[0][0],verts[0][1]); wheelOv.lineTo(verts[1][0],verts[1][1]); wheelOv.lineTo(verts[2][0],verts[2][1]); wheelOv.closePath(); wheelOv.stroke();
+      verts.forEach(function (v){ var c = wheelColorAt(v[2], v[3]); addChip(c); });
+      // centroid
+      var cx = (verts[0][2]+verts[1][2]+verts[2][2]); // not meaningful as hue avg, sample center sat
+      var center = wheelColorAt(color.gamRot+0, 0.0); // near neutral center
+      addChip([200,195,185]);
+    } else {
+      sw.innerHTML = "";
+    }
+  }
+
+  // ---------------- Mixing ----------------
+  function renderPigList() {
+    var list = byId("pigList"); list.innerHTML = "";
+    PIGMENTS.forEach(function (pg, i) {
+      var row = document.createElement("div"); row.className = "pig"; row.dataset.i = i;
+      var dot = document.createElement("div"); dot.className = "dot"; dot.style.background = hex(pg[1]);
+      var nm = document.createElement("div"); nm.className = "pn"; nm.textContent = pg[0];
+      row.appendChild(dot); row.appendChild(nm); list.appendChild(row);
+    });
+  }
+  function pigInfo(i) {
+    var pg = PIGMENTS[i];
+    byId("pigInfo").innerHTML = "<b>" + pg[0] + "</b> &middot; lightfast " + pg[2] + " &middot; " + pg[3] + ". " + pg[4];
+  }
+  function addToTray(i) {
+    var ex = color.tray.find(function (t){ return t.i === i; });
+    if (ex) ex.parts++; else color.tray.push({ i: i, parts: 1 });
+    renderTray();
+  }
+  function renderTray() {
+    var tray = byId("tray");
+    if (!color.tray.length) { tray.innerHTML = '<div class="hint">Tray empty. Build a mixture from two or more pigments.</div>'; byId("mixResult").classList.add("hidden"); return; }
+    tray.innerHTML = "";
+    var total = color.tray.reduce(function (s,t){ return s + t.parts; }, 0);
+    color.tray.forEach(function (t, idx) {
+      var pg = PIGMENTS[t.i];
+      var row = document.createElement("div"); row.className = "tray-row";
+      var dot = document.createElement("div"); dot.className = "dot"; dot.style.background = hex(pg[1]);
+      var nm = document.createElement("div"); nm.className = "pname"; nm.textContent = pg[0];
+      var minus = document.createElement("button"); minus.textContent = "-";
+      var parts = document.createElement("div"); parts.className = "parts"; parts.textContent = t.parts;
+      var plus = document.createElement("button"); plus.textContent = "+";
+      minus.onclick = function (){ t.parts--; if (t.parts <= 0) color.tray.splice(idx,1); renderTray(); };
+      plus.onclick = function (){ t.parts++; renderTray(); };
+      row.appendChild(dot); row.appendChild(nm); row.appendChild(minus); row.appendChild(parts); row.appendChild(plus);
+      tray.appendChild(row);
+    });
+    var entries = color.tray.map(function (t){ return { rgb: PIGMENTS[t.i][1], c: t.parts/total }; });
+    var mixed = kmMix(entries);
+    byId("mixResult").classList.remove("hidden");
+    byId("mixBig").style.background = hex(mixed);
+    byId("mixMeta").innerHTML = hex(mixed) + "<br>" + color.tray.length + " pigments, " + total + " parts<br>Kubelka-Munk subtractive";
+  }
+  function renderMatches() {
+    var info = byId("matchInfo"), label = byId("matchLabel");
+    if (!doc.palette.length) { info.textContent = ""; label.style.display = "none"; return; }
+    label.style.display = "block";
+    var labs = PIGMENTS.map(function (pg){ return rgbToLab(pg[1][0], pg[1][1], pg[1][2]); });
+    var out = doc.palette.map(function (c) {
+      var lc = rgbToLab(c[0], c[1], c[2]), best = Infinity, bi = 0;
+      labs.forEach(function (l, i){ var d = labDist(lc, l); if (d < best){ best = d; bi = i; } });
+      return '<span style="color:' + hex(c) + '">&#9632;</span> ' + PIGMENTS[bi][0];
+    });
+    info.innerHTML = out.join("<br>");
+  }
+
+  // ---------------- Readouts ----------------
+  function activeLayers() {
+    var L = [];
+    if (see.mode !== "none") L.push(see.mode === "notan" ? "notan" + see.steps : see.mode);
+    if (see.key) L.push("key");
+    ["thirds","golden","dyn","rabat","spiral","center"].forEach(function (k){ if (build[k]) L.push(k); });
+    if (build.grid) L.push("grid" + build.cols);
+    if (build.persp) L.push("persp" + build.pts);
+    if (doc.flipH) L.push("flipH"); if (doc.flipV) L.push("flipV");
+    if (check.mass) L.push("mass"); if (check.measure) L.push("caliper");
+    return L.length ? L.join(" ") : "none";
+  }
+  function nodeName(W, H, fx, fy) {
+    var named = [];
+    if (build.thirds) [["1/3",W/3],["2/3",2*W/3]].forEach(function (xx){ [["1/3",H/3],["2/3",2*H/3]].forEach(function (yy){ named.push(["thirds " + xx[0] + "," + yy[0], xx[1], yy[1]]); }); });
+    if (build.golden) [["0.382",W*0.382],["0.618",W*0.618]].forEach(function (xx){ [["0.382",H*0.382],["0.618",H*0.618]].forEach(function (yy){ named.push(["golden " + xx[0] + "," + yy[0], xx[1], yy[1]]); }); });
+    if (build.dyn) collectNodesDyn(W, H).forEach(function (p, i){ named.push(["eye " + (i+1), p[0], p[1]]); });
+    var best = Infinity, bn = null;
+    named.forEach(function (n){ var d = Math.hypot(n[1]-fx, n[2]-fy); if (d < best){ best = d; bn = n[0]; } });
+    return bn;
+  }
+  function collectNodesDyn(W, H) {
+    var out = [], r1=clipLine(W,0,H,-W,W,H), r2=clipLine(0,H,H,-W,W,H), r3=clipLine(0,0,H,W,W,H), r4=clipLine(W,H,H,W,W,H);
+    [r1,r2].forEach(function (r){ if(r){ var p=intersect([0,0],[W,H],[r[0],r[1]],[r[2],r[3]]); if(p) out.push(p); } });
+    [r3,r4].forEach(function (r){ if(r){ var p=intersect([W,0],[0,H],[r[0],r[1]],[r[2],r[3]]); if(p) out.push(p); } });
+    return out;
+  }
+  function focalReading() {
+    if (!doc.focal) return "unset";
+    var W = doc.work.w, H = doc.work.h, fx = doc.focal.x*W, fy = doc.focal.y*H;
+    var quad = (doc.focal.x<0.5?"left":"right") + " " + (doc.focal.y<0.5?"upper":"lower");
+    var nodes = collectNodes(W, H);
+    if (!nodes.length) return doc.focal.x.toFixed(2) + ", " + doc.focal.y.toFixed(2) + " (" + quad + ")";
+    var best = Infinity, diag = Math.hypot(W, H);
+    nodes.forEach(function (p){ var d = Math.hypot(p[0]-fx, p[1]-fy); if (d < best) best = d; });
+    var nm = nodeName(W, H, fx, fy);
+    return doc.focal.x.toFixed(2) + ", " + doc.focal.y.toFixed(2) + " (" + quad + ", " + (best/diag*100).toFixed(1) + "% to " + (nm||"node") + ")";
+  }
+  function renderReadouts() {
+    els.roRef.textContent = doc.name;
+    els.roPlate.textContent = (doc.work.w||0) + " \u00d7 " + (doc.work.h||0);
+    els.roFormat.textContent = doc.format;
+    els.roLayers.textContent = activeLayers();
+    els.roFocal.textContent = focalReading();
+    byId("focalReadout").textContent = doc.focal ? ("Focal at " + focalReading()) : "Click the plate to drop a focal marker.";
+    // grid readout
+    if (build.grid) {
+      var rows = Math.max(1, Math.round(build.cols * doc.work.h / doc.work.w));
+      var cell = (build.phys / build.cols);
+      byId("gridReadout").textContent = build.cols + " by " + rows + " grid, each cell " + cell.toFixed(2) + " " + build.unit + " on a " + build.phys + " " + build.unit + " plate.";
+    }
+    // measure readout
+    if (check.measure && check.points.length === 2) {
+      var W = doc.work.w, H = doc.work.h, a = check.points[0], b = check.points[1];
+      var dx = (b.x-a.x)*W, dy = (b.y-a.y)*H, len = Math.hypot(dx, dy);
+      var ang = Math.abs(Math.atan2(dy, dx) * 180/Math.PI); if (ang > 90) ang = 180 - ang;
+      var txt = "Angle " + ang.toFixed(1) + " deg from horizontal, length " + Math.round(len) + " px (" + (len/Math.hypot(W,H)*100).toFixed(1) + "% of diagonal).";
+      if (check.unit) txt += " Ratio to unit " + (len/check.unit).toFixed(3) + ".";
+      byId("measureReadout").textContent = txt;
+    }
+  }
+
+  // ---------------- Master refresh ----------------
+  function refresh(opts) {
+    opts = opts || {};
+    if (opts.source) prepareSource();
+    if (opts.source || opts.process) buildProcessed();
+    var mounted = doc.img || doc.isBlank;
+    els.empty.classList.toggle("hidden", !!mounted);
+    cvBase.classList.toggle("hidden", !mounted);
+    cvArm.classList.toggle("hidden", !mounted);
+    if (!mounted) { els.multiples.classList.add("hidden"); }
+    if (mounted) fitAndRender(); else renderReadouts();
+  }
+
+  function loadFile(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      doc.img = img; doc.isBlank = false;
+      doc.name = file.name.length > 24 ? file.name.slice(0,22) + ".." : file.name;
+      doc.crop = { zoom: 1, panX: 0, panY: 0 };
+      refresh({ source: true }); URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }
+
+  // ---------------- Wiring ----------------
+  // Tabs and stage mode
+  document.querySelectorAll(".tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (t){ t.classList.remove("active"); });
+      tab.classList.add("active");
+      var fam = tab.dataset.fam;
+      ["see","build","color","check"].forEach(function (f){ byId("fam"+f.charAt(0).toUpperCase()+f.slice(1)).classList.toggle("hidden", f !== fam); });
+      var colorActive = fam === "color";
+      els.stage.classList.toggle("show-plate", !colorActive);
+      els.stage.style.display = colorActive ? "none" : "flex";
+      els.colorStage.classList.toggle("show", colorActive);
+      if (colorActive) { renderColorStage(); renderMatches(); els.multiples.classList.add("hidden"); }
+      else if (check.mult && (doc.img || doc.isBlank)) { els.multiples.classList.remove("hidden"); }
+    });
+  });
+
+  // Document
+  byId("btnLoad").addEventListener("click", function (){ byId("fileInput").click(); });
+  byId("fileInput").addEventListener("change", function (e){ if (e.target.files[0]) loadFile(e.target.files[0]); });
+  byId("btnBlank").addEventListener("click", function (){ doc.isBlank = true; doc.img = null; doc.name = "blank ground"; doc.crop = { zoom:1, panX:0, panY:0 }; refresh({ source: true }); });
+  byId("segFormat").addEventListener("click", function (e){
+    var b = e.target.closest("button"); if (!b) return;
+    byId("segFormat").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); });
+    b.classList.add("on"); doc.format = b.dataset.fmt;
+    byId("cropControls").classList.toggle("hidden", doc.format === "source" || !doc.img);
+    refresh({ source: true });
+  });
+  byId("rZoom").addEventListener("input", function (e){ doc.crop.zoom = parseInt(e.target.value,10)/100; refresh({ source: true }); });
+  byId("rPanX").addEventListener("input", function (e){ doc.crop.panX = parseInt(e.target.value,10); refresh({ source: true }); });
+  byId("rPanY").addEventListener("input", function (e){ doc.crop.panY = parseInt(e.target.value,10); refresh({ source: true }); });
+
+  // SEE
+  function showModeCtl() {
+    byId("ctlNotan").classList.toggle("hidden", see.mode !== "notan");
+    byId("ctlTemp").classList.toggle("hidden", see.mode !== "temp");
+    byId("ctlEdge").classList.toggle("hidden", see.mode !== "edge");
+  }
+  byId("segMode").addEventListener("click", function (e){
+    var b = e.target.closest("button"); if (!b) return;
+    byId("segMode").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); });
+    b.classList.add("on"); see.mode = b.dataset.mode; showModeCtl(); refresh({ process: true });
+  });
+  byId("segSteps").addEventListener("click", function (e){
+    var b = e.target.closest("button"); if (!b) return;
+    byId("segSteps").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); });
+    b.classList.add("on"); see.steps = parseInt(b.dataset.steps,10); refresh({ process: true });
+  });
+  byId("rSquint").addEventListener("input", function (e){ see.squint = parseInt(e.target.value,10); refresh({ process: true }); });
+  byId("rBias").addEventListener("input", function (e){ see.bias = parseInt(e.target.value,10); refresh({ process: true }); });
+  byId("rNeutral").addEventListener("input", function (e){ see.neutral = parseInt(e.target.value,10); refresh({ process: true }); });
+  byId("rSquintT").addEventListener("input", function (e){ see.squintT = parseInt(e.target.value,10); refresh({ process: true }); });
+  byId("rEdge").addEventListener("input", function (e){ see.edge = parseInt(e.target.value,10); refresh({ process: true }); });
+  byId("tEdgeInv").addEventListener("change", function (e){ see.edgeLight = e.target.checked; refresh({ process: true }); });
+  byId("tKey").addEventListener("change", function (e){
+    see.key = e.target.checked; byId("keyArea").classList.toggle("hidden", !see.key);
+    if (see.key && (doc.img || doc.isBlank)) { extractKey(); } refresh({});
+  });
+
+  // BUILD
+  function bindT(id, key, after) { byId(id).addEventListener("change", function (e){ build[key] = e.target.checked; if (after) after(); refresh({}); }); }
+  bindT("tThirds","thirds"); bindT("tGolden","golden"); bindT("tDyn","dyn"); bindT("tRabat","rabat");
+  bindT("tSpiral","spiral", function (){ byId("rowCorner").classList.toggle("hidden", !build.spiral); });
+  bindT("tCenter","center"); bindT("tNodes","nodes");
+  byId("rArmAlpha").addEventListener("input", function (e){ build.alpha = parseInt(e.target.value,10)/100; refresh({}); });
+  byId("cornerGrid").addEventListener("click", function (e){
+    var b = e.target.closest("button"); if (!b) return;
+    byId("cornerGrid").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); });
+    b.classList.add("on"); build.corner = b.dataset.corner; refresh({});
+  });
+  bindT("tGrid","grid");
+  byId("rCols").addEventListener("input", function (e){ build.cols = parseInt(e.target.value,10); refresh({}); });
+  byId("nPhys").addEventListener("input", function (e){ build.phys = parseFloat(e.target.value)||1; renderReadouts(); });
+  byId("segUnit").addEventListener("click", function (e){ var b = e.target.closest("button"); if (!b) return; byId("segUnit").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); }); b.classList.add("on"); build.unit = b.dataset.unit; renderReadouts(); });
+  bindT("tPersp","persp", function (){ byId("rowVp3").style.display = (build.persp && build.pts===3) ? "flex" : "none"; });
+  byId("segPts").addEventListener("click", function (e){ var b = e.target.closest("button"); if (!b) return; byId("segPts").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); }); b.classList.add("on"); build.pts = parseInt(b.dataset.pts,10); byId("rowVp3").style.display = (build.persp && build.pts===3)?"flex":"none"; refresh({}); });
+  byId("rHorizon").addEventListener("input", function (e){ build.horizon = parseInt(e.target.value,10); refresh({}); });
+  byId("rVp1").addEventListener("input", function (e){ build.vp1 = parseInt(e.target.value,10); refresh({}); });
+  byId("rVp2").addEventListener("input", function (e){ build.vp2 = parseInt(e.target.value,10); refresh({}); });
+  byId("rVp3").addEventListener("input", function (e){ build.vp3 = parseInt(e.target.value,10); refresh({}); });
+  byId("rRays").addEventListener("input", function (e){ build.rays = parseInt(e.target.value,10); refresh({}); });
+
+  // COLOR
+  byId("colorSub").addEventListener("click", function (e){
+    var b = e.target.closest("button"); if (!b) return;
+    byId("colorSub").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); });
+    b.classList.add("on"); color.sub = b.dataset.sub;
+    byId("subHarmony").classList.toggle("hidden", color.sub !== "harmony");
+    byId("subGamut").classList.toggle("hidden", color.sub !== "gamut");
+    byId("subMix").classList.toggle("hidden", color.sub !== "mix");
+    renderColorStage(); if (color.sub === "mix") renderMatches();
+  });
+  byId("rHue").addEventListener("input", function (e){ color.hue = parseInt(e.target.value,10); renderColorStage(); });
+  byId("segScheme").addEventListener("click", function (e){ var b = e.target.closest("button"); if (!b) return; byId("segScheme").querySelectorAll("button").forEach(function (x){ x.classList.remove("on"); }); b.classList.add("on"); color.scheme = b.dataset.s; renderColorStage(); });
+  byId("rGamRot").addEventListener("input", function (e){ color.gamRot = parseInt(e.target.value,10); renderColorStage(); });
+  byId("rGamSize").addEventListener("input", function (e){ color.gamSize = parseInt(e.target.value,10); renderColorStage(); });
+  byId("pigList").addEventListener("click", function (e){
+    var row = e.target.closest(".pig"); if (!row) return; var i = parseInt(row.dataset.i,10);
+    if (row.dataset.armed === "1") { addToTray(i); row.dataset.armed = "0"; }
+    else { pigInfo(i); document.querySelectorAll(".pig").forEach(function (r){ r.dataset.armed = "0"; }); row.dataset.armed = "1"; }
+  });
+  byId("btnClearTray").addEventListener("click", function (){ color.tray = []; renderTray(); });
+
+  // CHECK
+  byId("tFlipH").addEventListener("change", function (e){ doc.flipH = e.target.checked; refresh({}); });
+  byId("tFlipV").addEventListener("change", function (e){ doc.flipV = e.target.checked; refresh({}); });
+  byId("tMass").addEventListener("change", function (e){ check.mass = e.target.checked; refresh({}); });
+  byId("tMeasure").addEventListener("change", function (e){ check.measure = e.target.checked; updateCrosshair(); refresh({}); });
+  byId("tMult").addEventListener("change", function (e){ check.mult = e.target.checked; if (!check.mult) els.multiples.classList.add("hidden"); refresh({}); });
+  byId("btnSetUnit").addEventListener("click", function (){
+    if (check.points.length === 2) {
+      var W = doc.work.w, H = doc.work.h, a = check.points[0], b = check.points[1];
+      check.unit = Math.hypot((b.x-a.x)*W, (b.y-a.y)*H); renderReadouts();
+    }
+  });
+  byId("btnClearMeasure").addEventListener("click", function (){ check.points = []; refresh({}); });
+
+  function updateCrosshair() { els.plateArea.classList.toggle("crosshair", check.measure || true); }
+
+  // Plate click: measure caliper or focal marker
+  els.plateArea.addEventListener("click", function (e) {
+    if (!(doc.img || doc.isBlank)) return;
+    var rect = cvBase.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+    var nx = (e.clientX - rect.left)/rect.width, ny = (e.clientY - rect.top)/rect.height;
+    if (check.measure) {
+      if (check.points.length >= 2) check.points = [];
+      check.points.push({ x: nx, y: ny }); refresh({}); return;
+    }
+    if (doc.focal && Math.abs(doc.focal.x-nx) < 0.02 && Math.abs(doc.focal.y-ny) < 0.02) doc.focal = null;
+    else doc.focal = { x: nx, y: ny };
+    refresh({});
+  });
+
+  // Export
+  byId("btnExport").addEventListener("click", function () {
+    if (!(doc.img || doc.isBlank)) return;
+    var W = doc.work.w, H = doc.work.h, out = document.createElement("canvas");
+    out.width = W; out.height = H; var octx = out.getContext("2d");
+    octx.save();
+    octx.translate(doc.flipH ? W : 0, doc.flipV ? H : 0);
+    octx.scale(doc.flipH ? -1 : 1, doc.flipV ? -1 : 1);
+    octx.drawImage(procCanvas, 0, 0);
+    octx.restore();
+    drawOverlay(octx, W, H, 1); octx.setTransform(1,0,0,1,0,0);
+    out.toBlob(function (blob){ var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "atelier_plate.png"; a.click(); setTimeout(function (){ URL.revokeObjectURL(a.href); }, 1000); });
+  });
+
+  // Drag and drop
+  ["dragenter","dragover"].forEach(function (ev){ els.stageWrap.addEventListener(ev, function (e){ e.preventDefault(); document.body.classList.add("dropping"); }); });
+  ["dragleave","drop"].forEach(function (ev){ els.stageWrap.addEventListener(ev, function (e){ e.preventDefault(); if (ev==="dragleave" && e.relatedTarget && els.stageWrap.contains(e.relatedTarget)) return; document.body.classList.remove("dropping"); }); });
+  els.stageWrap.addEventListener("drop", function (e){ if (e.dataTransfer && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+
+  // About
+  byId("aboutBtn").addEventListener("click", function (){ byId("aboutModal").classList.add("show"); });
+  byId("aboutClose").addEventListener("click", function (){ byId("aboutModal").classList.remove("show"); });
+  byId("aboutModal").addEventListener("click", function (e){ if (e.target === byId("aboutModal")) byId("aboutModal").classList.remove("show"); });
+
+  // Resize
+  var rt; window.addEventListener("resize", function (){ clearTimeout(rt); rt = setTimeout(function (){ if (color.sub && !byId("famColor").classList.contains("hidden")) {} refresh({}); }, 90); });
+
+  // Init
+  byId("rowVp3").style.display = "none";
+  renderPigList(); renderTray(); renderReadouts();
+})();
+</script>
+</body>
+</html>
